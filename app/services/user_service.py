@@ -100,7 +100,7 @@ class UserService:
             return None
         
     @classmethod
-    async def update_is_professional(cls, session: AsyncSession, user_id: UUID, is_professional: bool) -> Optional[User]:
+    async def update_is_professional(cls, session: AsyncSession, user_id: UUID, is_professional: bool, email_service: EmailService) -> Optional[User]:
         try: 
             query = update(User).where(User.id == user_id).values(is_professional=is_professional).execution_options(synchronize_session="fetch")
             await cls._execute_query(session, query)
@@ -108,6 +108,8 @@ class UserService:
             if updated_user:
                 session.refresh(updated_user)
                 logger.info(f"User {user_id}'s is_professional is set to {is_professional}.")
+                if (is_professional):
+                    await email_service.send_professional_status_email(updated_user)
                 return updated_user
             else:
                 logger.error(f"User {user_id} not found after update attempt.")
