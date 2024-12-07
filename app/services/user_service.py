@@ -106,9 +106,11 @@ class UserService:
             if user.is_professional == is_professional:
                 logger.info(f"User {user_id} already has the desired professional status: {is_professional}. No update required.")
                 return user
+            
+            user.update_professional_status(is_professional)
+            session.add(user)
+            await session.commit()
 
-            query = update(User).where(User.id == user_id).values(is_professional=is_professional).execution_options(synchronize_session="fetch")
-            await cls._execute_query(session, query)
             updated_user = await cls.get_by_id(session, user_id)
             if updated_user:
                 session.refresh(updated_user)

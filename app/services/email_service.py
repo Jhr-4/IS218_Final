@@ -48,4 +48,7 @@ class EmailService:
     async def send_professional_status_email(self, user: User):
         if not self.smtp_client:
             return
-        self.smtp_client.send_email("Professional Status Upgrade", "Congrats your status is now a professional.", user.email)
+        await self.send_user_email({
+            "name": user.first_name,
+            "email": user.email
+        }, 'professional_status_upgraded')
