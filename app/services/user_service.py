@@ -98,6 +98,23 @@ class UserService:
         except Exception as e:  # Broad exception handling for debugging
             logger.error(f"Error during user update: {e}")
             return None
+        
+    @classmethod
+    async def update_is_professional(cls, session: AsyncSession, user_id: UUID, is_professional: bool) -> Optional[User]:
+        try: 
+            query = update(User).where(User.id == user_id).values(is_professional=is_professional).execution_options(synchronize_session="fetch")
+            await cls._execute_query(session, query)
+            updated_user = await cls.get_by_id(session, user_id)
+            if updated_user:
+                session.refresh(updated_user)
+                logger.info(f"User {user_id}'s is_professional is set to {is_professional}.")
+                return updated_user
+            else:
+                logger.error(f"User {user_id} not found after update attempt.")
+            return None
+        except Exception as e:
+            logger.error(f"Error during is_professional update: {e}")
+            return None
 
     @classmethod
     async def delete(cls, session: AsyncSession, user_id: UUID) -> bool:
