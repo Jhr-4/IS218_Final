@@ -285,7 +285,7 @@ async def update_profile(user_update: UpdateProfile, request: Request, db: Async
     if user: 
         user_id = user.id
     else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not Logged In or AUTHENTICATED.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not Logged In / Authorized.")
     user_data = user_update.model_dump(exclude_unset=True)
     updated_user = await UserService.update(db, user_id, user_data)
     if not updated_user:
@@ -305,5 +305,36 @@ async def update_profile(user_update: UpdateProfile, request: Request, db: Async
         linkedin_profile_url=updated_user.linkedin_profile_url,
         created_at=updated_user.created_at,
         updated_at=updated_user.updated_at,
+        is_professional=user.is_professional,
         links=create_user_links(updated_user.id, request)
+    )
+
+@router.get("/profile/", name="get_user", tags=["User Profile"])
+async def get_user(request: Request, db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme), current_user: dict = Depends(require_role(["ADMIN", "MANAGER", "AUTHENTICATED", "ANONYMOUS"]))):
+    """
+    Get Your Current Profile.
+    """
+
+    user = await UserService.get_by_email(db, current_user["user_email"])
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not Logged In / Authorized.")
+    
+
+
+    return UserResponse.model_construct(
+        id=user.id,
+        bio=user.bio,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        nickname=user.nickname,
+        email=user.email,
+        role=user.role,
+        last_login_at=user.last_login_at,
+        profile_picture_url=user.profile_picture_url,
+        github_profile_url=user.github_profile_url,
+        linkedin_profile_url=user.linkedin_profile_url,
+        created_at=user.created_at,
+        updated_at=user.updated_at,
+        is_professional=user.is_professional,
+        links=create_user_links(user.id, request)
     )
