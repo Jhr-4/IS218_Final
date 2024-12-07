@@ -102,6 +102,11 @@ class UserService:
     @classmethod
     async def update_is_professional(cls, session: AsyncSession, user_id: UUID, is_professional: bool, email_service: EmailService) -> Optional[User]:
         try: 
+            user = await cls.get_by_id(session, user_id)
+            if user.is_professional == is_professional:
+                logger.info(f"User {user_id} already has the desired professional status: {is_professional}. No update required.")
+                return user
+
             query = update(User).where(User.id == user_id).values(is_professional=is_professional).execution_options(synchronize_session="fetch")
             await cls._execute_query(session, query)
             updated_user = await cls.get_by_id(session, user_id)
