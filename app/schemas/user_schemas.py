@@ -54,7 +54,7 @@ class UserUpdate(UserBase):
             raise ValueError("At least one field must be provided for update")
         return values
 
-class UpdateProfile(UserBase):
+class UpdateProfile(BaseModel):
     email: Optional[EmailStr] = Field(None, example="john.doe@example.com")
     nickname: Optional[str] = Field(None, min_length=3, pattern=r'^[\w-]+$', example="john_doe123")
     first_name: Optional[str] = Field(None, example="John")
@@ -63,6 +63,7 @@ class UpdateProfile(UserBase):
     profile_picture_url: Optional[str] = Field(None, example="https://example.com/profiles/john.jpg")
     linkedin_profile_url: Optional[str] =Field(None, example="https://linkedin.com/in/johndoe")
     github_profile_url: Optional[str] = Field(None, example="https://github.com/johndoe")
+    #cant choose their own role
 
     @root_validator(pre=True)
     def check_at_least_one_value(cls, values):

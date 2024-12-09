@@ -109,10 +109,10 @@ async def update_user(user_id: UUID, user_update: UserUpdate, request: Request, 
     )
 
 
-@router.put("/is-professional/{user_id}", response_model=UserResponse, name="is-professional", tags=["User Management Requires (Admin or Manager Roles)"])
+@router.put("/is-professional/{user_id}", name="is-professional", tags=["User Management Requires (Admin or Manager Roles)"])
 async def update_user(user_id: UUID, is_professional: bool, request: Request, db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme), email_service: EmailService = Depends(get_email_service), current_user: dict = Depends(require_role(["ADMIN", "MANAGER"]))):
     """
-    Update user information.
+    Update user professional status.
 
     - **user_id**: UUID of the user to update.
     """
@@ -120,23 +120,11 @@ async def update_user(user_id: UUID, is_professional: bool, request: Request, db
     if not updated_user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    return UserResponse.model_construct(
-        is_professional=updated_user.is_professional,
-        id=updated_user.id,
-        bio=updated_user.bio,
-        first_name=updated_user.first_name,
-        last_name=updated_user.last_name,
-        nickname=updated_user.nickname,
-        email=updated_user.email,
-        role=updated_user.role,
-        last_login_at=updated_user.last_login_at,
-        profile_picture_url=updated_user.profile_picture_url,
-        github_profile_url=updated_user.github_profile_url,
-        linkedin_profile_url=updated_user.linkedin_profile_url,
-        created_at=updated_user.created_at,
-        updated_at=updated_user.updated_at,
-        links=create_user_links(updated_user.id, request)
-    )
+    return {
+    "message": f"UUID: {updated_user.id} | User: {updated_user.nickname}'s professional status: {updated_user.is_professional}"
+    }
+    
+
 
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT, name="delete_user", tags=["User Management Requires (Admin or Manager Roles)"])
 async def delete_user(user_id: UUID, db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme), current_user: dict = Depends(require_role(["ADMIN", "MANAGER"]))):
@@ -278,7 +266,7 @@ async def verify_email(user_id: UUID, token: str, db: AsyncSession = Depends(get
 @router.put("/update-profile/", response_model=UserResponse, name="user_profile", tags=["User Profile"])
 async def update_profile(user_update: UpdateProfile, request: Request, db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme), current_user: dict = Depends(require_role(["ADMIN", "MANAGER", "AUTHENTICATED", "ANONYMOUS"]))):
     """
-    Update user profile.
+    Update user profile. Must be logged/authorized in to change profile fields.
     """
 
     user = await UserService.get_by_email(db, current_user["user_email"])
@@ -309,10 +297,10 @@ async def update_profile(user_update: UpdateProfile, request: Request, db: Async
         links=create_user_links(updated_user.id, request)
     )
 
-@router.get("/profile/", name="get_user", tags=["User Profile"])
+@router.get("/profile/", response_model=UserResponse, name="get_user", tags=["User Profile"])
 async def get_user(request: Request, db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme), current_user: dict = Depends(require_role(["ADMIN", "MANAGER", "AUTHENTICATED", "ANONYMOUS"]))):
     """
-    Get Your Current Profile.
+    Get Your Current Profile. Must be logged/authorized to get your profile.
     """
 
     user = await UserService.get_by_email(db, current_user["user_email"])
