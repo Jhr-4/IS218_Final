@@ -326,3 +326,23 @@ async def get_user(request: Request, db: AsyncSession = Depends(get_db), token: 
         is_professional=user.is_professional,
         links=create_user_links(user.id, request)
     )
+
+@router.get("/non-professional-users/", response_model=UserListResponse, tags=["User Management Requires (Admin or Manager Roles)"])
+async def list_users(request: Request, skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db), current_user: dict = Depends(require_role(["ADMIN", "MANAGER"]))):
+    total_users = await UserService.count_non_professional_users(db)
+    users = await UserService.list_users_non_professional(db, skip, limit)
+
+    user_responses = [
+        UserResponse.model_validate(user) for user in users
+    ]
+    
+    pagination_links = generate_pagination_links(request, skip, limit, total_users)
+    
+    # Construct the final response with pagination details
+    return UserListResponse(
+        items=user_responses,
+        total=total_users,
+        page=skip // limit + 1,
+        size=len(user_responses),
+        links=pagination_links
+    )

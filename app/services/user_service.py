@@ -140,6 +140,12 @@ class UserService:
         query = select(User).offset(skip).limit(limit)
         result = await cls._execute_query(session, query)
         return result.scalars().all() if result else []
+    
+    @classmethod
+    async def list_users_non_professional(cls, session: AsyncSession, skip: int = 0, limit: int = 10) -> List[User]:
+        query = select(User).where((User.is_professional == False) | (User.is_professional == None)).offset(skip).limit(limit)
+        result = await cls._execute_query(session, query)
+        return result.scalars().all() if result else []
 
     @classmethod
     async def register_user(cls, session: AsyncSession, user_data: Dict[str, str], get_email_service) -> Optional[User]:
@@ -216,6 +222,13 @@ class UserService:
         count = result.scalar()
         return count
     
+    @classmethod
+    async def count_non_professional_users(cls, session: AsyncSession) -> int:
+        query = select(func.count()).where((User.is_professional == False) | (User.is_professional == None))
+        result = await session.execute(query)
+        count = result.scalar()
+        return count
+
     @classmethod
     async def unlock_user_account(cls, session: AsyncSession, user_id: UUID) -> bool:
         user = await cls.get_by_id(session, user_id)
