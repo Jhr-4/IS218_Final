@@ -2,7 +2,7 @@ import uuid
 import pytest
 from pydantic import ValidationError
 from datetime import datetime
-from app.schemas.user_schemas import UserBase, UserCreate, UserUpdate, UserResponse, UserListResponse, LoginRequest, UpdateProfile
+from app.schemas.user_schemas import UserBase, UserCreate, UserUpdate, UserResponse, UserListResponse, LoginRequest, UpdateProfile, UpdateProfessionalStatusRequest
 
 # Fixtures for common test data
 @pytest.fixture
@@ -54,6 +54,10 @@ def login_request_data():
     return {"email": "john_doe_123@emai.com", "password": "SecurePassword123!"}
 
 @pytest.fixture
+def professional_status_request_data():
+    return {"is_professional": True}
+
+@pytest.fixture
 def update_profile_data():
     return {"nickname": "bob", "email": "john_doe_1234@emai.com"}
 
@@ -87,7 +91,12 @@ def test_login_request_valid(login_request_data):
     assert login.email == login_request_data["email"]
     assert login.password == login_request_data["password"]
 
-# Tests for LoginRequest
+# Tests for Update IsProfessional
+def test_professional_request_valid(professional_status_request_data):
+    updatedStatus = UpdateProfessionalStatusRequest(**professional_status_request_data)
+    assert updatedStatus.is_professional == professional_status_request_data["is_professional"]
+
+# Tests for Update Profile
 def test_update_profile_valid(update_profile_data):
     updatedProfile = UpdateProfile(**update_profile_data)
     assert updatedProfile.nickname == update_profile_data["nickname"]

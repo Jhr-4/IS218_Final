@@ -71,6 +71,9 @@ class UpdateProfile(BaseModel):
             raise ValueError("At least one field must be provided for update")
         return values
 
+class UpdateProfessionalStatusRequest(BaseModel):
+    is_professional: bool
+
 class UserResponse(UserBase):
     id: uuid.UUID = Field(..., example=uuid.uuid4())
     email: EmailStr = Field(..., example="john.doe@example.com")
