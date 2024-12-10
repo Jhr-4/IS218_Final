@@ -161,3 +161,16 @@ async def test_unlock_user_account(db_session, locked_user):
     assert unlocked, "The account should be unlocked"
     refreshed_user = await UserService.get_by_id(db_session, locked_user.id)
     assert not refreshed_user.is_locked, "The user should no longer be locked"
+
+#Test user professional status update
+async def test_update_user_professional_status_valid(db_session, user, email_service):
+    new_is_professional = True
+    updated_user = await UserService.update_is_professional(db_session, user.id, new_is_professional, email_service)
+    assert updated_user is not None
+    assert updated_user.is_professional == new_is_professional
+    assert updated_user.professional_status_updated_at is not None
+
+async def test_update_user_professional_status_invalid(db_session, user, email_service):
+    new_is_professional = True
+    updated_user = await UserService.update_is_professional(db_session, 1234, new_is_professional, email_service)
+    assert updated_user is None
