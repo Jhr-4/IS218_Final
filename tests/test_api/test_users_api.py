@@ -207,7 +207,7 @@ async def test_update_professional_status_access_allowed(async_client, admin_use
     assert str(updated_data["is_professional"]) in response.json()["message"]
 
 @pytest.mark.asyncio
-async def test_update_profile(async_client, user, user_token):
+async def test_update_profile_logged_in(async_client, user, user_token):
     headers = {"Authorization": f"Bearer {user_token}"}
     updated_data = {
         "email": "test@email.com"
@@ -218,10 +218,21 @@ async def test_update_profile(async_client, user, user_token):
     assert response.json()["email"] == updated_data["email"]
 
 @pytest.mark.asyncio
-async def test_get_profile(async_client, user, user_token):
+async def test_update_profile_not_authorized(async_client):
+    updated_data = {
+        "email": "test@email.com"
+    }
+    response = await async_client.put("/update-profile/", json=updated_data)
+    assert response.status_code == 401
+
+@pytest.mark.asyncio
+async def test_get_profile_logged_in(async_client, user, user_token):
     headers = {"Authorization": f"Bearer {user_token}"}
     response = await async_client.get("/profile/", headers=headers)
-    print(f"Response status: {response.status_code}, body: {response.json()}")  # Debugging log
-
     assert response.status_code == 200
     assert response.json()["email"] == user.email
+
+@pytest.mark.asyncio
+async def test_get_profile_not_authorized(async_client):
+    response = await async_client.get("/profile/")
+    assert response.status_code == 401
