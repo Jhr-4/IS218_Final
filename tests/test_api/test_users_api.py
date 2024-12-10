@@ -236,3 +236,20 @@ async def test_get_profile_logged_in(async_client, user, user_token):
 async def test_get_profile_not_authorized(async_client):
     response = await async_client.get("/profile/")
     assert response.status_code == 401
+
+@pytest.mark.asyncio
+async def test_list_non_professional_users_as_admin(async_client, admin_token):
+    response = await async_client.get(
+        "/non-professional-users/",
+        headers={"Authorization": f"Bearer {admin_token}"}
+    )
+    assert response.status_code == 200
+    assert 'items' in response.json()
+
+@pytest.mark.asyncio
+async def test_list_non_professional_users_as_unauthorized(async_client, user_token):
+    response = await async_client.get(
+        "/non-professional-users/",
+        headers={"Authorization": f"Bearer {user_token}"}
+    )
+    assert response.status_code == 403

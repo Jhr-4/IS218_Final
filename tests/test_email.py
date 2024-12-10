@@ -12,3 +12,12 @@ async def test_send_markdown_email(email_service):
     }
     await email_service.send_user_email(user_data, 'email_verification')
     # Manual verification in Mailtrap
+
+@pytest.mark.asyncio
+async def test_send_professional_status_markdown_email(email_service):
+    user_data = {
+        "email": "test@example.com",
+        "name": "Test User",
+    }
+    await email_service.send_user_email(user_data, 'professional_status_upgraded')
+    # Manual verification in Mailtrap

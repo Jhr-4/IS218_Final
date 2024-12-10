@@ -92,6 +92,14 @@ async def test_list_users_with_pagination(db_session, users_with_same_role_50_us
     assert len(users_page_2) == 10
     assert users_page_1[0].id != users_page_2[0].id
 
+# Test listing non professional users
+async def test_list_users_non_professional(db_session, users_with_same_role_50_users):
+    users_page_1 = await UserService.list_users(db_session, skip=0, limit=10)
+    users_page_2 = await UserService.list_users(db_session, skip=10, limit=10)
+    assert len(users_page_1) == 10
+    assert len(users_page_2) == 10
+    assert users_page_1[0].id != users_page_2[0].id
+
 # Test registering a user with valid data
 async def test_register_user_with_valid_data(db_session, email_service):
     user_data = {
