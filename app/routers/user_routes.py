@@ -297,7 +297,7 @@ async def update_profile(user_update: UpdateProfile, request: Request, db: Async
         links=create_user_links(updated_user.id, request)
     )
 
-@router.get("/profile/", response_model=UserResponse, name="get_user", tags=["User Profile"])
+@router.get("/profile/", response_model=UserResponse, name="get_profile", tags=["User Profile"])
 async def get_user(request: Request, db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme), current_user: dict = Depends(require_role(["ADMIN", "MANAGER", "AUTHENTICATED", "ANONYMOUS"]))):
     """
     Get Your Current Profile. Must be logged/authorized to get your profile.
