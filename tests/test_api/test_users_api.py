@@ -199,8 +199,8 @@ async def test_update_professional_status_access_denied(async_client, verified_u
     assert response.status_code == 403
 
 @pytest.mark.asyncio
-async def test_update_professional_status_access_allowed(async_client, admin_user, admin_token):
-    updated_data = {"is_professional": True}
+async def test_update_professional_status_access_allowed(async_client, admin_user, admin_token, email_service):
+    updated_data = {"is_professional": False}
     headers = {"Authorization": f"Bearer {admin_token}"}
     response = await async_client.put(f"/is-professional/{admin_user.id}", json=updated_data, headers=headers)
     assert response.status_code == 200
