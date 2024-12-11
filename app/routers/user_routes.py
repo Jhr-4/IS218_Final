@@ -109,7 +109,7 @@ async def update_user(user_id: UUID, user_update: UserUpdate, request: Request, 
     )
 
 
-@router.put("/is-professional/{user_id}", name="is-professional", tags=["User Management Requires (Admin or Manager Roles)"])
+@router.put("/users/is-professional/{user_id}", name="Update_User_professional_Status", tags=["User Management Requires (Admin or Manager Roles)"])
 async def update_user(user_id: UUID, data: UpdateProfessionalStatusRequest, request: Request, db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme), email_service: EmailService = Depends(get_email_service), current_user: dict = Depends(require_role(["ADMIN", "MANAGER"]))):
     """
     Update user professional status.
@@ -263,7 +263,7 @@ async def verify_email(user_id: UUID, token: str, db: AsyncSession = Depends(get
         return {"message": "Email verified successfully"}
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired verification token")
 
-@router.put("/update-profile/", response_model=UserResponse, name="user_profile", tags=["User Profile"])
+@router.put("/profile/", response_model=UserResponse, name="update_profile", tags=["User Profile"])
 async def update_profile(user_update: UpdateProfile, request: Request, db: AsyncSession = Depends(get_db), token: str = Depends(oauth2_scheme), current_user: dict = Depends(require_role(["ADMIN", "MANAGER", "AUTHENTICATED", "ANONYMOUS"]))):
     """
     Update user profile. Must be logged/authorized in to change profile fields.
@@ -327,7 +327,7 @@ async def get_user(request: Request, db: AsyncSession = Depends(get_db), token: 
         links=create_user_links(user.id, request)
     )
 
-@router.get("/non-professional-users/", response_model=UserListResponse, tags=["User Management Requires (Admin or Manager Roles)"])
+@router.get("/users/non-professional-users/", response_model=UserListResponse, name="list_non_professional_user", tags=["User Management Requires (Admin or Manager Roles)"])
 async def list_users(request: Request, skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db), current_user: dict = Depends(require_role(["ADMIN", "MANAGER"]))):
     total_users = await UserService.count_non_professional_users(db)
     users = await UserService.list_users_non_professional(db, skip, limit)

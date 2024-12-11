@@ -195,14 +195,14 @@ async def test_list_users_unauthorized(async_client, user_token):
 async def test_update_professional_status_access_denied(async_client, verified_user, user_token):
     updated_data = {"is_professional": True}
     headers = {"Authorization": f"Bearer {user_token}"}
-    response = await async_client.put(f"/is-professional/{verified_user.id}", json=updated_data, headers=headers)
+    response = await async_client.put(f"/users/is-professional/{verified_user.id}", json=updated_data, headers=headers)
     assert response.status_code == 403
 
 @pytest.mark.asyncio
 async def test_update_professional_status_access_allowed(async_client, admin_user, admin_token, email_service):
     updated_data = {"is_professional": False}
     headers = {"Authorization": f"Bearer {admin_token}"}
-    response = await async_client.put(f"/is-professional/{admin_user.id}", json=updated_data, headers=headers)
+    response = await async_client.put(f"/users/is-professional/{admin_user.id}", json=updated_data, headers=headers)
     assert response.status_code == 200
     assert str(updated_data["is_professional"]) in response.json()["message"]
 
@@ -212,7 +212,7 @@ async def test_update_profile_logged_in(async_client, user, user_token):
     updated_data = {
         "email": "test@email.com"
     }
-    response = await async_client.put("/update-profile/", json=updated_data, headers=headers)
+    response = await async_client.put("/profile/", json=updated_data, headers=headers)
 
     assert response.status_code == 200
     assert response.json()["email"] == updated_data["email"]
@@ -222,7 +222,7 @@ async def test_update_profile_not_authorized(async_client):
     updated_data = {
         "email": "test@email.com"
     }
-    response = await async_client.put("/update-profile/", json=updated_data)
+    response = await async_client.put("/profile/", json=updated_data)
     assert response.status_code == 401
 
 @pytest.mark.asyncio
@@ -240,7 +240,7 @@ async def test_get_profile_not_authorized(async_client):
 @pytest.mark.asyncio
 async def test_list_non_professional_users_as_admin(async_client, admin_token):
     response = await async_client.get(
-        "/non-professional-users/",
+        "/users/non-professional-users/",
         headers={"Authorization": f"Bearer {admin_token}"}
     )
     assert response.status_code == 200
@@ -249,7 +249,7 @@ async def test_list_non_professional_users_as_admin(async_client, admin_token):
 @pytest.mark.asyncio
 async def test_list_non_professional_users_as_unauthorized(async_client, user_token):
     response = await async_client.get(
-        "/non-professional-users/",
+        "/users/non-professional-users/",
         headers={"Authorization": f"Bearer {user_token}"}
     )
     assert response.status_code == 403
